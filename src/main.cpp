@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <iostream>
+#include <ratio>
 using namespace std;
 
 class BST {
@@ -21,7 +23,7 @@ class BST {
 
 		// Manipulating functions
 		TreeNode* insert(TreeNode* root,string name, int id);
-		void remove(int id);
+		void remove(TreeNode* root, int id);
 		void searchId(TreeNode* root, int id);
 		void searchName(TreeNode* root, string name);
 
@@ -133,11 +135,40 @@ BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
 	return root;
 }
 
-void BST::remove(int id) { // TODO
-	
+void BST::remove(TreeNode* root, int id) { // FIXME
+	if (root == nullptr) {
+		cout << "unsuccessful" << endl;
+	}
+	else if (id < root->id) {
+		remove(root->left, id);
+	}
+	else if (id > root->id) {
+		remove(root->right, id);
+	}
+	else {
+		if (root->left == nullptr) {
+			delete root;
+			cout << "successful" << endl;
+		}
+		else if (root->right == nullptr) {
+			delete root;
+			cout << "successful" << endl;
+		}
+		else {
+			TreeNode* current = root->right;
+			while (current->left != nullptr) {
+				current = current->left;
+			}
+			root->id = current->id;
+			root->name = current->name;
+			remove(root->right, current->id);
+		}
+
+	}
+
 }
 
-void BST::searchId(TreeNode* root, int id) {
+void BST::searchId(TreeNode* root, int id) { // DONE
 	if (root == nullptr) {
 		cout << "unsuccessful" << endl;
 	}
@@ -152,7 +183,7 @@ void BST::searchId(TreeNode* root, int id) {
 	}
 }
 
-void BST::searchName(TreeNode* root, string name) {
+void BST::searchName(TreeNode* root, string name) { // FIXME
 	if (root == nullptr) {
 		cout << "unsuccessful" << endl;
 	}
@@ -168,7 +199,7 @@ void BST::searchName(TreeNode* root, string name) {
 }
 
 // Printing Functions
-void BST::printInorder(TreeNode* root) {
+void BST::printInorder(TreeNode* root) { // DONE
 	if (root == nullptr)
 		cout << "";
 	else {
@@ -178,17 +209,17 @@ void BST::printInorder(TreeNode* root) {
 	}
 }
 
-void BST::printPreorder(TreeNode* root) {
+void BST::printPreorder(TreeNode* root) { // DONE
 	if (root == nullptr)
 		cout << "";
 	else {
-		cout << root->name << ", ";
+		cout << root->id << ", ";
 		printPreorder(root->left);
 		printPreorder(root->right);
 	}
 }
 
-void BST::printPostorder(TreeNode* root) {
+void BST::printPostorder(TreeNode* root) { // DONE
 	if (root == nullptr)
 		cout << "";
 	else {
@@ -198,7 +229,7 @@ void BST::printPostorder(TreeNode* root) {
 	}
 }
 
-void BST::printLevelCount(TreeNode* root) {
+void BST::printLevelCount(TreeNode* root) { // DONE
 	if (root == nullptr) 
 		cout << 0;
 	else {
@@ -220,6 +251,7 @@ int main() {
 	t.root = t.insert(t.root, "D", 40);
 	t.root = t.insert(t.root, "E", 50);
 	t.root = t.insert(t.root, "F", 25);
+	t.remove(t.root, 25);
 	t.searchId(t.root, 50);
 	t.searchName(t.root, "C");
 	
