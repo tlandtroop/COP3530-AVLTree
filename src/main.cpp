@@ -22,58 +22,25 @@ class BST {
 		// Manipulating functions
 		TreeNode* insert(TreeNode* root,string name, int id);
 		void remove(int id);
-		void searchId(int id);
-		void searchName(string name);
+		void searchId(TreeNode* root, int id);
+		void searchName(TreeNode* root, string name);
 
 		// Printing functions
-		void printInorder();
-		void printPreorder();
-		void printPostorder();
+		void printInorder(TreeNode* root);
+		void printPreorder(TreeNode* root);
+		void printPostorder(TreeNode* root);
 		void printLevelCount(TreeNode* root);
 		void removeInorder(int n);
 
 	private:
 		// Helper functions
-		void helperInorder(TreeNode* helpRoot);
-		void helperPreorder(TreeNode* helpRoot);
-		void helperPostorder(TreeNode* helpRoot);
 		int height(TreeNode* root);
 		int getBalanceFactor(TreeNode* node);
 		TreeNode* createNode(string name, int id);
 };
 
 // Helpers
-void BST::helperInorder(BST::TreeNode* helpRoot) {
-	if (helpRoot == nullptr)
-		cout << "";
-	else {
-		helperInorder(helpRoot->left);
-		cout << helpRoot->name << ", ";
-		helperInorder(helpRoot->right);
-	}
-}
-
-void BST::helperPreorder(BST::TreeNode* helpRoot) {
-	if (helpRoot == nullptr)
-		cout << "";
-	else {
-		cout << helpRoot->id << ", ";
-		helperPreorder(helpRoot->left);
-		helperPreorder(helpRoot->right);
-	}
-}
-
-void BST::helperPostorder(BST::TreeNode* helpRoot) {
-	if (helpRoot == nullptr)
-		cout << "";
-	else {
-		cout << helpRoot->name << ", ";
-		helperPreorder(helpRoot->left);
-		helperPreorder(helpRoot->right);
-	}
-}
-
-int BST::height(TreeNode* root) {
+int BST::height(TreeNode* root) { // DONE
 	if (root == nullptr)
 		return 0;
 	else {
@@ -84,13 +51,13 @@ int BST::height(TreeNode* root) {
 	}
 }
 
-int BST::getBalanceFactor(TreeNode* node) {
+int BST::getBalanceFactor(TreeNode* node) { // DONE
 	if (node == nullptr)
 		return 0;
 	return height(node->left) - height(node->right);
 }
 
-BST::TreeNode* BST::createNode(string name, int id) {
+BST::TreeNode* BST::createNode(string name, int id) { // DONE
 	TreeNode* node = new TreeNode();
 	node->id = id;
 	node->name = name;
@@ -102,7 +69,7 @@ BST::TreeNode* BST::createNode(string name, int id) {
 }
 
 // Rotations
-BST::TreeNode* BST::right(TreeNode* root) {
+BST::TreeNode* BST::right(TreeNode* root) { // DONE
 	TreeNode* grandchild = root->left->right;
 	TreeNode* newParent =  root->left;
 	newParent->right = root;
@@ -110,28 +77,26 @@ BST::TreeNode* BST::right(TreeNode* root) {
 	return newParent;
 }
 
-BST::TreeNode* BST::left(TreeNode* root) {
+BST::TreeNode* BST::left(TreeNode* root) { // DONE
 	TreeNode* grandchild = root->right->left;
 	TreeNode* newParent =  root->right;
+	newParent->left = root;
 	root->right = grandchild;
-	root = newParent;
 	return newParent;
 }
 
-BST::TreeNode* BST::rightLeft(TreeNode* root) { // TODO: First rotation on child
-	root = right(root->right);
-	root = left(root);
-	return root;
+BST::TreeNode* BST::rightLeft(TreeNode* root) { // DONE
+	root->right = right(root->right);
+	return left(root);
 }
 
-BST::TreeNode* BST::leftRight(TreeNode* root) { // TODO: First rotation on child
-	root = left(root->left);
-	root = right(root);
-	return root;
+BST::TreeNode* BST::leftRight(TreeNode* root) { // DONE
+	root->left = left(root->left);
+	return right(root);
 }
 
 // Manipulative Functions
-BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // TODO
+BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
 	if (root == nullptr) {
 		return createNode(name, id);
 	}
@@ -143,24 +108,25 @@ BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // TODO
 		root->right = insert(root->right, name, id);
 	}
 
+	root->height = height(root);
 	int balanceFactor = getBalanceFactor(root);
 
 	// Left Left
-	if (balanceFactor == 2 && getBalanceFactor(root->left) == 1) {
+	if (balanceFactor == 2 && id < root->left->id) {
 		return right(root);
 	}
 	// Right Right
-	if (balanceFactor == -2 && getBalanceFactor(root->right) == -1) {
+	if (balanceFactor == -2 && id > root->right->id) {
 		return left(root);
 	}
 
 	// Left Right
-	if (balanceFactor == 2 && getBalanceFactor(root->left) == -1) {
+	if (balanceFactor == 2 && id > root->left->id) {
 		return leftRight(root);
 	}
 
 	// Right Left
-	if (balanceFactor == -2 && getBalanceFactor(root->right) == 1) {
+	if (balanceFactor == -2 && id < root->right->id) {
 		return rightLeft(root);
 	}
 
@@ -171,25 +137,65 @@ void BST::remove(int id) { // TODO
 	
 }
 
-void BST::searchId(int id) { // TODO
-	
+void BST::searchId(TreeNode* root, int id) {
+	if (root == nullptr) {
+		cout << "unsuccessful" << endl;
+	}
+	else if (id == root->id) {
+		cout << root->name << endl;
+	}
+	else if (root->id < id) {
+		searchId(root->right, id);
+	}
+	else if (root->id > id) {
+		searchId(root->left, id);
+	}
 }
 
-void searchName(string name) { // TODO
-	
+void BST::searchName(TreeNode* root, string name) {
+	if (root == nullptr) {
+		cout << "unsuccessful" << endl;
+	}
+	else if (name == root->name) {
+		cout << root->id << endl;
+	}
+	else if (root->name < name) {
+		searchName(root->right, name);
+	}
+	else if (root->name > name) {
+		searchName(root->left, name);
+	}
 }
 
 // Printing Functions
-void BST::printInorder() {
-	helperInorder(this->root);
+void BST::printInorder(TreeNode* root) {
+	if (root == nullptr)
+		cout << "";
+	else {
+		printInorder(root->left);
+		cout << root->name << ", ";
+		printInorder(root->right);
+	}
 }
 
-void BST::printPreorder() {
-	helperPreorder(this->root);
+void BST::printPreorder(TreeNode* root) {
+	if (root == nullptr)
+		cout << "";
+	else {
+		cout << root->name << ", ";
+		printPreorder(root->left);
+		printPreorder(root->right);
+	}
 }
 
-void BST::printPostorder() {
-	helperPostorder(this->root);
+void BST::printPostorder(TreeNode* root) {
+	if (root == nullptr)
+		cout << "";
+	else {
+		printPostorder(root->left);
+		printPostorder(root->right);
+		cout << root->name << ", ";
+	}
 }
 
 void BST::printLevelCount(TreeNode* root) {
@@ -214,7 +220,11 @@ int main() {
 	t.root = t.insert(t.root, "D", 40);
 	t.root = t.insert(t.root, "E", 50);
 	t.root = t.insert(t.root, "F", 25);
-	t.printPreorder();
+	t.searchId(t.root, 50);
+	t.searchName(t.root, "C");
+	
+	
+	t.printPreorder(t.root);
 }
 
 
