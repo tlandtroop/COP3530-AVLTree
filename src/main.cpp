@@ -48,6 +48,10 @@ void BST::helperSearchName(TreeNode* root, vector<int> &vec, string name) {
 	helperSearchName(root->right, vec, name);
 }
 
+void helperRemove(TreeNode* root, int &counter, int n) {
+	
+}
+
 int BST::height(TreeNode* root) { // DONE
 	if (root == nullptr)
 		return 0;
@@ -243,6 +247,7 @@ void BST::printInorder(TreeNode* root) { // DONE
 		}
 		first = false;
 	}
+	
 }
 
 void BST::printPreorder(TreeNode* root) { // DONE
@@ -286,68 +291,167 @@ void BST::printLevelCount(TreeNode* root) { // DONE
 }
 
 // Other
-void BST::removeInorder(int n) { // TODO
+void BST::removeInorder(int n) { // FIXME
+	int counter;
+
+	helperRemove(root, counter, n);
 }
 
 int main() {
-	// int numCommands;
-	// cin >> numCommands;
-
-	// for (int i = 0; i <= numCommands; i++) {
-	// 	string line;
-	// 	getline(cin, line);
-
-	// 	istringstream in(line);
-
-	// 	string command;
-	// 	in >> command;
-
-	// 	if (command == "insert") {
-	// 		string next;
-	// 		getline(in, next, '"');
-
-	// 		string name;
-	// 		in >> name;
-
-	// 		regex valid("^[a-zA-Z]+$");
-	// 		if (regex_match(name, valid)) {
-	// 			string next;
-	// 			getline(in, next, '"');
-
-	// 			string ufid;
-	// 			in >> ufid;
-
-	// 			if (ufid.length() == 8) {
-	// 				int id = stoi(ufid);
-	// 				t.root = t.insert(t.root, name, id);
-	// 				cout << "successful";
-	// 			}
-	// 		}
-	// 	}
-
-	// }
-
-	
-	
 	BST t;
-	t.root = nullptr;
-	t.root = t.insert(t.root, "A", 10);
-	t.root = t.insert(t.root, "B", 20);
-	t.root = t.insert(t.root, "C", 30);
-	t.root = t.insert(t.root, "C", 35);
-	t.root = t.insert(t.root, "D", 40);
-	t.root = t.insert(t.root, "E", 50);
-	t.root = t.insert(t.root, "F", 60);
-	t.searchId(t.root, 38);
-	t.searchName(t.root, "C");
 
-	t.printInorder(t.root);
-	cout << endl;
-	t.printPreorder(t.root);
-	cout << endl;
-	t.printPostorder(t.root); 
-	cout << endl;
-	t.printLevelCount(t.root);
+	string numCommands;
+	getline(cin, numCommands);
+	int numberCommands = stoi(numCommands);
+
+	regex valid("^[a-zA-Z]+$");
+
+	for (int i = 0; i < numberCommands; i++) {
+		string line;
+		getline(cin, line);
+
+		istringstream in(line);
+
+		string command;
+		in >> command;
+
+		if (command == "insert") {
+			in >> ws;
+
+			char quote;
+			in.get(quote);
+
+			string next;
+			getline(in, next, '"');
+
+			in.get(quote);
+
+			string name;
+			name = next;
+
+			if (regex_match(name, valid)) {
+				in >> ws;
+
+				getline(in, next);
+
+				int id = stoi(next);
+
+				if (next.length() == 8) {
+					t.root = t.insert(t.root, name, id);
+				}
+				else {
+					cout << "unsuccessful" << endl;
+				}
+			}
+			else {
+				cout << "unsuccessful" << endl;
+			}
+		}
+		else if (command == "remove") {
+			in >> ws;
+
+			string next;
+			getline(in, next);
+
+			int id = stoi(next);
+
+			if (next.length() == 8) {
+				t.root = t.remove(t.root, id);
+			}
+			else {
+				cout << "unsuccessful" << endl;
+			}
+		}
+		else if (command == "search") {
+			in >> ws;
+
+			char quote;
+			if (in.get(quote)) {
+				in.get(quote);
+
+				string next;
+				getline(in, next);
+
+				in.get(quote);
+
+				string name;
+				name = next;
+
+				if (regex_match(name, valid)) {
+					t.searchName(t.root, name);
+				}
+				else {
+					cout << "unsuccessful" << endl;
+				}
+			}
+			else {
+				in >> ws;
+
+				string next;
+				getline(in, next);
+
+				int id = stoi(next);
+
+				if (next.length() == 8) {
+					t.searchId(t.root, id);
+				}
+				else {
+					cout << "unsuccessful" << endl;
+				}
+			}
+		}
+		else if (command == "printInorder") {
+			t.printInorder(t.root);
+			cout << endl;
+		}
+		else if (command == "printPreorder") {
+			t.printPreorder(t.root);
+		}
+		else if (command == "printPostorder") {
+			t.printPostorder(t.root);
+		}
+		else if (command == "printLevelCount") {
+			t.printLevelCount(t.root);
+		}
+		else if (command == "removeInorder") {
+			in >> ws;
+
+			string next;
+			getline(in, next);
+
+			int n = stoi(next);
+
+			if (next.length() == 1) {
+				t.removeInorder(n);
+			}
+
+
+		}
+		else {
+			cout << "Error" << endl;
+		}
+	}
+
+	
+	
+// 	t.root = nullptr;
+// 	t.root = t.insert(t.root, "A", 10);
+// 	t.root = t.insert(t.root, "B", 20);
+// 	t.root = t.insert(t.root, "C", 30);
+// 	t.root = t.insert(t.root, "C", 35);
+// 	t.root = t.insert(t.root, "D", 40);
+// 	t.root = t.insert(t.root, "E", 50);
+// 	t.root = t.insert(t.root, "F", 60);
+// 	t.searchId(t.root, 38);
+// 	t.searchName(t.root, "C");
+
+// 	t.printInorder(t.root);
+// 	cout << endl;
+// 	t.printPreorder(t.root);
+// 	cout << endl;
+// 	t.printPostorder(t.root); 
+// 	cout << endl;
+// 	t.printLevelCount(t.root);
 }
 
 

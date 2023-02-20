@@ -40,6 +40,7 @@ class BST {
 		void helperPre(TreeNode* root, vector<string> &vec);
 		void helperPost(TreeNode* root, vector<string> &vec);
 		void helperSearchName(TreeNode* root, vector<int> &vec, string name);
+		void helperRemove(TreeNode* root, int &counter, int n);
 		int height(TreeNode* root);
 		int getBalanceFactor(TreeNode* node);
 		TreeNode* createNode(string name, int id);
