@@ -1,47 +1,53 @@
-#include <algorithm>
 #include <iostream>
-#include <ratio>
+#include <stack>
+#include <regex>
+#include <sstream>
+#include "BST.h"
 using namespace std;
 
-class BST {
-	public:
-		struct TreeNode {
-			string name;
-			int id;
-			int height;
-			TreeNode* left;
-			TreeNode* right;
-			TreeNode() : name(""), id(0), left(nullptr), right(nullptr) {}
-		};
-		TreeNode* root;
-		
-		// Rotations
-		TreeNode* right(TreeNode* node);
-		TreeNode* left(TreeNode* node);
-		TreeNode* rightLeft(TreeNode* node);
-		TreeNode* leftRight(TreeNode* node);
-
-		// Manipulating functions
-		TreeNode* insert(TreeNode* root,string name, int id);
-		void remove(TreeNode* root, int id);
-		void searchId(TreeNode* root, int id);
-		void searchName(TreeNode* root, string name);
-
-		// Printing functions
-		void printInorder(TreeNode* root);
-		void printPreorder(TreeNode* root);
-		void printPostorder(TreeNode* root);
-		void printLevelCount(TreeNode* root);
-		void removeInorder(int n);
-
-	private:
-		// Helper functions
-		int height(TreeNode* root);
-		int getBalanceFactor(TreeNode* node);
-		TreeNode* createNode(string name, int id);
-};
-
 // Helpers
+void BST::helperIn(TreeNode* root, vector<string> &vec) {
+	if (root == nullptr) {
+		return;
+	}
+
+	helperIn(root->left, vec);
+	vec.push_back(root->name);
+	helperIn(root->right, vec);
+}
+
+void BST::helperPre(TreeNode* root, vector<string> &vec) {
+	if (root == nullptr) {
+		return;
+	}
+
+	vec.push_back(root->name);
+	helperPre(root->left, vec);
+	helperPre(root->right, vec);
+}
+
+void BST::helperPost(TreeNode* root, vector<string> &vec) {
+	if (root == nullptr) {
+		return;
+	}
+
+	helperPost(root->left, vec);
+	helperPost(root->right, vec);
+	vec.push_back(root->name);
+}
+
+void BST::helperSearchName(TreeNode* root, vector<int> &vec, string name) {
+	if (root == nullptr) {
+		return;
+	}
+
+	if (root->name == name) {
+		vec.push_back(root->id);
+	}
+	helperSearchName(root->left, vec, name);
+	helperSearchName(root->right, vec, name);
+}
+
 int BST::height(TreeNode* root) { // DONE
 	if (root == nullptr)
 		return 0;
@@ -53,13 +59,15 @@ int BST::height(TreeNode* root) { // DONE
 	}
 }
 
+
+
 int BST::getBalanceFactor(TreeNode* node) { // DONE
 	if (node == nullptr)
 		return 0;
 	return height(node->left) - height(node->right);
 }
 
-BST::TreeNode* BST::createNode(string name, int id) { // DONE
+TreeNode* BST::createNode(string name, int id) { // DONE
 	TreeNode* node = new TreeNode();
 	node->id = id;
 	node->name = name;
@@ -71,7 +79,7 @@ BST::TreeNode* BST::createNode(string name, int id) { // DONE
 }
 
 // Rotations
-BST::TreeNode* BST::right(TreeNode* root) { // DONE
+TreeNode* BST::right(TreeNode* root) { // DONE
 	TreeNode* grandchild = root->left->right;
 	TreeNode* newParent =  root->left;
 	newParent->right = root;
@@ -79,7 +87,7 @@ BST::TreeNode* BST::right(TreeNode* root) { // DONE
 	return newParent;
 }
 
-BST::TreeNode* BST::left(TreeNode* root) { // DONE
+TreeNode* BST::left(TreeNode* root) { // DONE
 	TreeNode* grandchild = root->right->left;
 	TreeNode* newParent =  root->right;
 	newParent->left = root;
@@ -87,19 +95,20 @@ BST::TreeNode* BST::left(TreeNode* root) { // DONE
 	return newParent;
 }
 
-BST::TreeNode* BST::rightLeft(TreeNode* root) { // DONE
+TreeNode* BST::rightLeft(TreeNode* root) { // DONE
 	root->right = right(root->right);
 	return left(root);
 }
 
-BST::TreeNode* BST::leftRight(TreeNode* root) { // DONE
+TreeNode* BST::leftRight(TreeNode* root) { // DONE
 	root->left = left(root->left);
 	return right(root);
 }
 
 // Manipulative Functions
-BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
+TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
 	if (root == nullptr) {
+		cout << "successful" << endl;
 		return createNode(name, id);
 	}
 
@@ -109,7 +118,7 @@ BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
 	else if (id > root->id) {
 		root->right = insert(root->right, name, id);
 	}
-
+ 
 	root->height = height(root);
 	int balanceFactor = getBalanceFactor(root);
 
@@ -135,37 +144,52 @@ BST::TreeNode* BST::insert(TreeNode* root, string name, int id) { // DONE
 	return root;
 }
 
-void BST::remove(TreeNode* root, int id) { // FIXME
+TreeNode* BST::remove(TreeNode* root, int id) { // DONE
 	if (root == nullptr) {
 		cout << "unsuccessful" << endl;
+		return root;
 	}
+
 	else if (id < root->id) {
-		remove(root->left, id);
+		root->left = remove(root->left, id);
 	}
+
 	else if (id > root->id) {
-		remove(root->right, id);
+		root->right = remove(root->right, id);
 	}
+
 	else {
-		if (root->left == nullptr) {
+		if (root->left == nullptr && root->right == nullptr) {
 			delete root;
 			cout << "successful" << endl;
+			return nullptr;
+			
+		}
+		else if (root->left == nullptr) {
+			TreeNode* temp = root->right;
+			delete root->right;
+			cout << "successful" << endl;
+			return temp;
 		}
 		else if (root->right == nullptr) {
-			delete root;
+			TreeNode* temp = root->left;
+			delete root->left;
 			cout << "successful" << endl;
+			return temp;
 		}
 		else {
-			TreeNode* current = root->right;
-			while (current->left != nullptr) {
-				current = current->left;
+			TreeNode* temp = root->left;
+			while (temp && temp->right != nullptr) {
+				temp = temp->right;
 			}
-			root->id = current->id;
-			root->name = current->name;
-			remove(root->right, current->id);
+			root->id = temp->id;
+			root->name = temp->name;
+
+			root->left = remove(root->left, temp->id);
 		}
-
 	}
-
+	root->height = height(root);
+	return root;
 }
 
 void BST::searchId(TreeNode* root, int id) { // DONE
@@ -183,12 +207,18 @@ void BST::searchId(TreeNode* root, int id) { // DONE
 	}
 }
 
-void BST::searchName(TreeNode* root, string name) { // FIXME
+void BST::searchName(TreeNode* root, string name) { // DONE
+	vector<int> vec;
+
 	if (root == nullptr) {
 		cout << "unsuccessful" << endl;
 	}
 	else if (name == root->name) {
-		cout << root->id << endl;
+		helperSearchName(root, vec, name);
+
+		for (int i = 0; i < vec.size(); i++) {
+			cout << vec[i] << endl;
+		}
 	}
 	else if (root->name < name) {
 		searchName(root->right, name);
@@ -200,32 +230,50 @@ void BST::searchName(TreeNode* root, string name) { // FIXME
 
 // Printing Functions
 void BST::printInorder(TreeNode* root) { // DONE
-	if (root == nullptr)
-		cout << "";
-	else {
-		printInorder(root->left);
-		cout << root->name << ", ";
-		printInorder(root->right);
+	vector<string> vec;
+	helperIn(root, vec);
+
+	bool first = true;
+	for (int i = 0; i < vec.size(); i++) {
+		if (first) {
+			cout << vec[i];
+		}
+		else {
+			cout << ", " << vec[i];
+		}
+		first = false;
 	}
 }
 
 void BST::printPreorder(TreeNode* root) { // DONE
-	if (root == nullptr)
-		cout << "";
-	else {
-		cout << root->id << ", ";
-		printPreorder(root->left);
-		printPreorder(root->right);
+	vector<string> vec;
+	helperPre(root, vec);
+
+	bool first = true;
+	for (int i = 0; i < vec.size(); i++) {
+		if (first) {
+			cout << vec[i];
+		}
+		else {
+			cout << ", " << vec[i];
+		}
+		first = false;
 	}
 }
 
 void BST::printPostorder(TreeNode* root) { // DONE
-	if (root == nullptr)
-		cout << "";
-	else {
-		printPostorder(root->left);
-		printPostorder(root->right);
-		cout << root->name << ", ";
+	vector<string> vec;
+	helperPost(root, vec);
+
+	bool first = true;
+	for (int i = 0; i < vec.size(); i++) {
+		if (first) {
+			cout << vec[i];
+		}
+		else {
+			cout << ", " << vec[i];
+		}
+		first = false;
 	}
 }
 
@@ -242,21 +290,64 @@ void BST::removeInorder(int n) { // TODO
 }
 
 int main() {
-	// TODO: Parsing and inputs
+	// int numCommands;
+	// cin >> numCommands;
+
+	// for (int i = 0; i <= numCommands; i++) {
+	// 	string line;
+	// 	getline(cin, line);
+
+	// 	istringstream in(line);
+
+	// 	string command;
+	// 	in >> command;
+
+	// 	if (command == "insert") {
+	// 		string next;
+	// 		getline(in, next, '"');
+
+	// 		string name;
+	// 		in >> name;
+
+	// 		regex valid("^[a-zA-Z]+$");
+	// 		if (regex_match(name, valid)) {
+	// 			string next;
+	// 			getline(in, next, '"');
+
+	// 			string ufid;
+	// 			in >> ufid;
+
+	// 			if (ufid.length() == 8) {
+	// 				int id = stoi(ufid);
+	// 				t.root = t.insert(t.root, name, id);
+	// 				cout << "successful";
+	// 			}
+	// 		}
+	// 	}
+
+	// }
+
+	
+	
 	BST t;
 	t.root = nullptr;
 	t.root = t.insert(t.root, "A", 10);
 	t.root = t.insert(t.root, "B", 20);
 	t.root = t.insert(t.root, "C", 30);
+	t.root = t.insert(t.root, "C", 35);
 	t.root = t.insert(t.root, "D", 40);
 	t.root = t.insert(t.root, "E", 50);
-	t.root = t.insert(t.root, "F", 25);
-	t.remove(t.root, 25);
-	t.searchId(t.root, 50);
+	t.root = t.insert(t.root, "F", 60);
+	t.searchId(t.root, 38);
 	t.searchName(t.root, "C");
-	
-	
+
+	t.printInorder(t.root);
+	cout << endl;
 	t.printPreorder(t.root);
+	cout << endl;
+	t.printPostorder(t.root); 
+	cout << endl;
+	t.printLevelCount(t.root);
 }
 
 
